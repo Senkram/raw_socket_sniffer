@@ -1,0 +1,183 @@
+27.10.2026 19:20:16 
+Kaynak MAC Adresi: 22:32:B7:A9:E2:9A
+Hedef MAC Adresi: 36:E5:38:68:00:81
+Ethernet Tipi: 0x0800
+(L3) Kaynak IP Adresi: 20.42.65.95 
+(L3) Hedef IP Adresi: 172.17.0.2 
+(L4) Protokol: TCP 
+Kaynak Port: 443 
+Hedef Port: 46434 
+-------------------------------
+Kaynak MAC Adresi: 36:E5:38:68:00:81
+Hedef MAC Adresi: 22:32:B7:A9:E2:9A
+Ethernet Tipi: 0x0800
+(L3) Kaynak IP Adresi: 172.17.0.2 
+(L3) Hedef IP Adresi: 20.42.65.95 
+(L4) Protokol: TCP 
+Kaynak Port: 46434 
+Hedef Port: 443 
+-------------------------------
+Kaynak MAC Adresi: 36:E5:38:68:00:81
+Hedef MAC Adresi: 22:32:B7:A9:E2:9A
+Ethernet Tipi: 0x0800
+(L3) Kaynak IP Adresi: 172.17.0.2 
+(L3) Hedef IP Adresi: 20.42.65.95 
+(L4) Protokol: TCP 
+Kaynak Port: 46434 
+Hedef Port: 443 
+-------------------------------
+Kaynak MAC Adresi: 22:32:B7:A9:E2:9A
+Hedef MAC Adresi: 36:E5:38:68:00:81
+Ethernet Tipi: 0x0800
+(L3) Kaynak IP Adresi: 20.42.65.95 
+(L3) Hedef IP Adresi: 172.17.0.2 
+(L4) Protokol: TCP 
+Kaynak Port: 443 
+Hedef Port: 46434 
+-------------------------------
+Kaynak MAC Adresi: 22:32:B7:A9:E2:9A
+Hedef MAC Adresi: 36:E5:38:68:00:81
+Ethernet Tipi: 0x0800
+(L3) Kaynak IP Adresi: 20.42.65.95 
+(L3) Hedef IP Adresi: 172.17.0.2 
+(L4) Protokol: TCP 
+Kaynak Port: 443 
+Hedef Port: 46434 
+-------------------------------
+Kaynak MAC Adresi: 36:E5:38:68:00:81
+Hedef MAC Adresi: 22:32:B7:A9:E2:9A
+Ethernet Tipi: 0x0800
+(L3) Kaynak IP Adresi: 172.17.0.2 
+(L3) Hedef IP Adresi: 20.42.65.95 
+(L4) Protokol: TCP 
+Kaynak Port: 46434 
+Hedef Port: 443 
+-------------------------------
+Kaynak MAC Adresi: 36:E5:38:68:00:81
+Hedef MAC Adresi: 22:32:B7:A9:E2:9A
+Ethernet Tipi: 0x0800
+(L3) Kaynak IP Adresi: 172.17.0.2 
+(L3) Hedef IP Adresi: 20.42.65.95 
+(L4) Protokol: TCP 
+Kaynak Port: 46434 
+Hedef Port: 443 
+-------------------------------
+Kaynak MAC Adresi: 22:32:B7:A9:E2:9A
+Hedef MAC Adresi: 36:E5:38:68:00:81
+Ethernet Tipi: 0x0800
+(L3) Kaynak IP Adresi: 20.42.65.95 
+(L3) Hedef IP Adresi: 172.17.0.2 
+(L4) Protokol: TCP 
+Kaynak Port: 443 
+Hedef Port: 46434 
+-------------------------------
+Kaynak MAC Adresi: 22:32:B7:A9:E2:9A
+Hedef MAC Adresi: 36:E5:38:68:00:81
+Ethernet Tipi: 0x0800
+(L3) Kaynak IP Adresi: 20.42.65.95 
+(L3) Hedef IP Adresi: 172.17.0.2 
+(L4) Protokol: TCP 
+Kaynak Port: 443 
+Hedef Port: 46434 
+-------------------------------
+Kaynak MAC Adresi: 22:32:B7:A9:E2:9A
+Hedef MAC Adresi: 36:E5:38:68:00:81
+Ethernet Tipi: 0x0800
+(L3) Kaynak IP Adresi: 20.42.65.95 
+(L3) Hedef IP Adresi: 172.17.0.2 
+(L4) Protokol: TCP 
+Kaynak Port: 443 
+Hedef Port: 46434 
+-------------------------------
+28.10.2026 01:13:14 
+Kaynak MAC Adresi: EA:E8:62:76:3D:AD
+Hedef MAC Adresi: 02:B4:39:49:7A:A5
+Ethernet Tipi: 0x0800
+(L3) Kaynak IP Adresi: 172.17.0.2 
+(L3) Hedef IP Adresi: 192.168.65.7 
+(L4) Protokol: UDP 
+Kaynak Port: 40536 
+Hedef Port: 53 
+-------------------------------
+Kaynak MAC Adresi: 02:B4:39:49:7A:A5
+Hedef MAC Adresi: EA:E8:62:76:3D:AD
+Ethernet Tipi: 0x0800
+(L3) Kaynak IP Adresi: 192.168.65.7 
+(L3) Hedef IP Adresi: 172.17.0.2 
+(L4) Protokol: UDP 
+Kaynak Port: 53 
+Hedef Port: 40536 
+-------------------------------
+Kaynak MAC Adresi: EA:E8:62:76:3D:AD
+Hedef MAC Adresi: 02:B4:39:49:7A:A5
+Ethernet Tipi: 0x0800
+(L3) Kaynak IP Adresi: 172.17.0.2 
+(L3) Hedef IP Adresi: 13.89.179.12 
+(L4) Protokol: TCP 
+Kaynak Port: 59930 
+Hedef Port: 443 
+Bayrak: [SYN] Bağlantı Başlatma
+-------------------------------
+Kaynak MAC Adresi: 02:B4:39:49:7A:A5
+Hedef MAC Adresi: EA:E8:62:76:3D:AD
+Ethernet Tipi: 0x0800
+(L3) Kaynak IP Adresi: 13.89.179.12 
+(L3) Hedef IP Adresi: 172.17.0.2 
+(L4) Protokol: TCP 
+Kaynak Port: 443 
+Hedef Port: 59930 
+-------------------------------
+Kaynak MAC Adresi: EA:E8:62:76:3D:AD
+Hedef MAC Adresi: 02:B4:39:49:7A:A5
+Ethernet Tipi: 0x0800
+(L3) Kaynak IP Adresi: 172.17.0.2 
+(L3) Hedef IP Adresi: 13.89.179.12 
+(L4) Protokol: TCP 
+Kaynak Port: 59930 
+Hedef Port: 443 
+-------------------------------
+Kaynak MAC Adresi: EA:E8:62:76:3D:AD
+Hedef MAC Adresi: 02:B4:39:49:7A:A5
+Ethernet Tipi: 0x0800
+(L3) Kaynak IP Adresi: 172.17.0.2 
+(L3) Hedef IP Adresi: 13.89.179.12 
+(L4) Protokol: TCP 
+Kaynak Port: 59930 
+Hedef Port: 443 
+-------------------------------
+Kaynak MAC Adresi: 02:B4:39:49:7A:A5
+Hedef MAC Adresi: EA:E8:62:76:3D:AD
+Ethernet Tipi: 0x0800
+(L3) Kaynak IP Adresi: 13.89.179.12 
+(L3) Hedef IP Adresi: 172.17.0.2 
+(L4) Protokol: TCP 
+Kaynak Port: 443 
+Hedef Port: 59930 
+-------------------------------
+Kaynak MAC Adresi: 02:B4:39:49:7A:A5
+Hedef MAC Adresi: EA:E8:62:76:3D:AD
+Ethernet Tipi: 0x0800
+(L3) Kaynak IP Adresi: 13.89.179.12 
+(L3) Hedef IP Adresi: 172.17.0.2 
+(L4) Protokol: TCP 
+Kaynak Port: 443 
+Hedef Port: 59930 
+-------------------------------
+Kaynak MAC Adresi: EA:E8:62:76:3D:AD
+Hedef MAC Adresi: 02:B4:39:49:7A:A5
+Ethernet Tipi: 0x0800
+(L3) Kaynak IP Adresi: 172.17.0.2 
+(L3) Hedef IP Adresi: 13.89.179.12 
+(L4) Protokol: TCP 
+Kaynak Port: 59930 
+Hedef Port: 443 
+-------------------------------
+Kaynak MAC Adresi: EA:E8:62:76:3D:AD
+Hedef MAC Adresi: 02:B4:39:49:7A:A5
+Ethernet Tipi: 0x0800
+(L3) Kaynak IP Adresi: 172.17.0.2 
+(L3) Hedef IP Adresi: 13.89.179.12 
+(L4) Protokol: TCP 
+Kaynak Port: 59930 
+Hedef Port: 443 
+-------------------------------

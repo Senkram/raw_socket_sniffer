@@ -18,6 +18,7 @@
 #include <netinet/udp.h>
 #include <netinet/ip_icmp.h>
 #include <linux/if_vlan.h>
+#include <time.h>
 
 struct vlanhdr
 {
@@ -25,8 +26,42 @@ struct vlanhdr
     uint16_t vlan_encapsulated_proto; // Asıl Protokol (IPv4 - ARP vb.)
 };
 
-int main()
+// log tuttuğumuz dosya
+FILE *log_file = NULL;
+
+void log_packet()
 {
+    if (!log_file)
+    {
+        printf("There is no file.\n");
+        return;
+    }
+
+    time_t now = time(NULL);
+    struct tm *time_struct = localtime(&now);
+    char time_str[100];
+    strftime(time_str, 100, "%d.%m.%Y %H:%M:%S", time_struct); // time bilgisine format veriyoruz
+
+    printf("%s \n", time_str);
+    fprintf(log_file, "%s \n", time_str);
+}
+
+int main(int argc, char *argv[]) // argv[0]: Program adı, argv[1]: Paket kapasitesi
+{
+    int packet_cap = 10; // default paket kapasitesi
+    int packet_count = 0;
+
+    if (argc > 1)
+    {
+        int packet_cap_input = atoi(argv[1]);
+        packet_cap_input <= 0 ? printf("Geçersiz paket kapasite değeri!") : (packet_cap = packet_cap_input);
+        // Paket kapasitesi değeri 0 veya küçükse uyar değilse paket kapasitesi olarak set et
+    }
+
+    // Dosyayı append modunda açıyoruz (append: Yoksa oluştur, varsa ekleme yap)
+    log_file = fopen("sniffer.log", "a");
+
+    // Paketleri alacak soketi oluşturuyoruz
     int socket_id = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
 
     if (socket_id < 0)
@@ -36,10 +71,12 @@ int main()
     }
 
     printf("Raw socket oluşturuldu. Socket ID: %d\n", socket_id);
+    log_packet();
 
-    unsigned char buffer[65536];
-    while (1)
+    unsigned char buffer[65536];      // Paketleri alacağımız buffer (tampon)
+    while (packet_count < packet_cap) // Paket sayısı paket kapasitesinden az ise devam ets
     {
+        // Paketi çekiyoruz
         int data_size = recvfrom(socket_id, buffer, sizeof(buffer), 0, (struct sockaddr *)NULL, NULL);
 
         if (data_size < (int)sizeof(struct ethhdr)) // Eksik/hatalı paket kontrolü
@@ -57,14 +94,25 @@ int main()
             continue;
         }
 
+        // Paket kabul edildi
+        packet_count++;
+
         uint16_t eth_type = ntohs(eth->h_proto);
         printf("Kaynak MAC Adresi: %02X:%02X:%02X:%02X:%02X:%02X\n",
                eth->h_source[0], eth->h_source[1], eth->h_source[2],
                eth->h_source[3], eth->h_source[4], eth->h_source[5]);
+        fprintf(log_file, "Kaynak MAC Adresi: %02X:%02X:%02X:%02X:%02X:%02X\n",
+                eth->h_source[0], eth->h_source[1], eth->h_source[2],
+                eth->h_source[3], eth->h_source[4], eth->h_source[5]);
         printf("Hedef MAC Adresi: %02X:%02X:%02X:%02X:%02X:%02X\n",
                eth->h_dest[0], eth->h_dest[1], eth->h_dest[2],
                eth->h_dest[3], eth->h_dest[4], eth->h_dest[5]);
+        fprintf(log_file, "Hedef MAC Adresi: %02X:%02X:%02X:%02X:%02X:%02X\n",
+                eth->h_dest[0], eth->h_dest[1], eth->h_dest[2],
+                eth->h_dest[3], eth->h_dest[4], eth->h_dest[5]);
+
         printf("Ethernet Tipi: 0x%04X\n", ntohs(eth->h_proto));
+        fprintf(log_file, "Ethernet Tipi: 0x%04X\n", ntohs(eth->h_proto));
 
         if (eth_type == ETH_P_8021Q)
         { // VLAN etiketi
@@ -75,10 +123,12 @@ int main()
             uint8_t priority = (tci >> 13) & 0x07; // İlk 3 bit QoS Önceliğidir (0-7)
 
             printf("(L2) [VLAN Etiketi] ID: %d | Öncelik (PCP): %d \n", vlan_id, priority);
+            fprintf(log_file, "(L2) [VLAN Etiketi] ID: %d | Öncelik (PCP): %d \n", vlan_id, priority);
 
             // VLAN etiketini atıp asıl L3 protokolünü tanımlıyoruz
             eth_type = ntohs(vlan->vlan_encapsulated_proto);
 
+            // VLAN etiketini katman 2 boyutuna ekliyoruz
             l2_hlength += sizeof(struct vlanhdr);
         }
 
@@ -90,11 +140,15 @@ int main()
             printf("(L3) Kaynak IP Adresi: %s \n", inet_ntoa((struct in_addr){.s_addr = ip->saddr}));
             printf("(L3) Hedef IP Adresi: %s \n", inet_ntoa((struct in_addr){.s_addr = ip->daddr}));
 
+            fprintf(log_file, "(L3) Kaynak IP Adresi: %s \n", inet_ntoa((struct in_addr){.s_addr = ip->saddr}));
+            fprintf(log_file, "(L3) Hedef IP Adresi: %s \n", inet_ntoa((struct in_addr){.s_addr = ip->daddr}));
+
             switch (ip->protocol)
             {
             default:
             {
                 printf("(L4) Başka bir protokol tanımlı. Protokol No: %d \n", ip->protocol);
+                fprintf(log_file, "(L4) Başka bir protokol tanımlı. Protokol No: %d \n", ip->protocol);
                 break;
             }
             case IPPROTO_TCP:
@@ -104,10 +158,20 @@ int main()
                 printf("(L4) Protokol: TCP \n");
                 printf("Kaynak Port: %d \n", ntohs(tcp->source));
                 printf("Hedef Port: %d \n", ntohs(tcp->dest));
+                fprintf(log_file, "(L4) Protokol: TCP \n");
+                fprintf(log_file, "Kaynak Port: %d \n", ntohs(tcp->source));
+                fprintf(log_file, "Hedef Port: %d \n", ntohs(tcp->dest));
+
                 if (tcp->syn && !tcp->ack)
+                {
                     printf("Bayrak: [SYN] Bağlantı Başlatma\n");
+                    fprintf(log_file, "Bayrak: [SYN] Bağlantı Başlatma\n");
+                }
                 if (tcp->fin)
+                {
                     printf("Bayrak: [FIN] Bağlantı Sonlandırma\n");
+                    fprintf(log_file, "Bayrak: [FIN] Bağlantı Sonlandırma\n");
+                }
                 break;
             }
             case IPPROTO_UDP:
@@ -117,6 +181,10 @@ int main()
                 printf("(L4) Protokol: UDP \n");
                 printf("Kaynak Port: %d \n", ntohs(udp->source));
                 printf("Hedef Port: %d \n", ntohs(udp->dest));
+
+                fprintf(log_file, "(L4) Protokol: UDP \n");
+                fprintf(log_file, "Kaynak Port: %d \n", ntohs(udp->source));
+                fprintf(log_file, "Hedef Port: %d \n", ntohs(udp->dest));
                 break;
             }
             case IPPROTO_ICMP:
@@ -128,6 +196,11 @@ int main()
                 printf("ICMP Kod: %d \n", icmp->code);
                 printf("ICMP Checksum (Veri Bütünlüğü Kontrolü): %d \n", icmp->checksum);
 
+                fprintf(log_file, "(L4) Protokol: ICMP \n");
+                fprintf(log_file, "Mesaj Tipi: %d \n", icmp->type);
+                fprintf(log_file, "ICMP Kod: %d \n", icmp->code);
+                fprintf(log_file, "ICMP Checksum (Veri Bütünlüğü Kontrolü): %d \n", icmp->checksum);
+
                 break;
             }
             }
@@ -135,16 +208,21 @@ int main()
         else if (eth_type == ETH_P_ARP)
         {
             printf("(L2 - L3) Protokol: ARP \n");
+            fprintf(log_file, "(L2 - L3) Protokol: ARP \n");
         }
 
         else
         {
             printf("(L2) Protokol: IPv4 veya ARP değil. EtherType: 0x%04X \n", eth_type);
+            fprintf(log_file, "(L2) Protokol: IPv4 veya ARP değil. EtherType: 0x%04X \n", eth_type);
         }
 
         // Satır olarak ayırma
         printf("-------------------------------\n");
+        fprintf(log_file, "-------------------------------\n");
     }
+
+    fclose(log_file);
     close(socket_id);
     return 0;
 }

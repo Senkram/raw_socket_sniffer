@@ -1,0 +1,21 @@
+{
+  // Vscode'da debugging yapabilmek için yetki verdim (Yapay zeka yardımıyla)
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "C/C++: Debug with Sudo",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/src/test",
+      "args": [],
+      "stopAtEntry": false,
+      "cwd": "${workspaceFolder}/src",
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "gdb",
+      "miDebuggerPath": "${workspaceFolder}/.vscode/sudo-gdb.sh",
+      "preLaunchTask": "C/C++: gcc build active file"
+    }
+  ]
+}
+

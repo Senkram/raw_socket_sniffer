@@ -1,0 +1,82 @@
+Hüseyin ESKİ Hocamın Koyduğu Adımlar (mail):
+
+Kadir Merhaba,
+
+Mesajını ve GitHub'daki kodu inceledim. Çalışma için doğru yoldasın. VLAN etiketindeki TCI alanını bit düzeyinde ayırman ve IP başlık uzunluğunu ihl*4 ile hesaplaman, formatları gerçekten anladığını gösteriyor. Kodu kendin yazman da çok değerli, böyle devam et.
+
+Üç konuyu değerlendirdim. 2. konuyla, yani endüstriyel/IoT ağları için protokol uyumluluğu ve güvenlik denetimiyle ilerleyelim. Gerekçem kısaca şöyle:
+- Hafif IDS/IPS konusu çok doygun. Hakem ilk olarak "Snort/Suricata'dan farkı ne?" diye sorar ve buna iyi bir cevap vermek zor.
+- Trafik sınıflandırma ve QoS konusunda trafik büyük ölçüde şifreli olduğu için iş makine öğrenmesine kayar. Bu durumda C ile yazdığın düşük seviye ayrıştırıcının katkısı azalır.
+- Modbus/TCP (port 502) ve IEC 60870-5-104 (port 2404) TCP üzerinde çalışan ikili protokoller ve mevcut kodundaki TCP dalının doğal devamı. Burada bayt düzeyinde C ile ayrıştırma gerçekten değer taşıyor. Ayrıca kamuya açık pcap veri kümeleri var.
+
+Baştan netleştirmem gereken bir nokta var: Çalışmanın katkısı L2-L4 ayrıştırıcı olmayacak, çünkü bunu Wireshark, Zeek ve Suricata zaten yapıyor. Mevcut kod altyapı olacak; çalışma, bunun üzerine kuracağımız şeyden çıkacak. Türkçe literatürde Modbus TCP temel düzeyde işlendiği için özgünlüğü IEC 104 ve durum bilgili (stateful) denetimle sağlayacağız.
+
+Taslak başlık: Kaynak Kısıtlı Donanımda Modbus/TCP ve IEC 60870-5-104 için Durum Bilgili Pasif Protokol Uyumluluk Denetimi
+
+
+MEVCUT KODDAKİ EKSİKLER (önce bunları kapatalım)
+
+1. Sınır kontrolleri: Şu an yalnızca Ethernet başlığının boyu kontrol ediliyor. VLAN, IP ve TCP/UDP/ICMP başlıkları data_size'a bakılmadan okunuyor. Bu yüzden kısa ya da bozuk bir pakette tampondaki önceki paketten kalan baytları ayrıştırıyorsun. Her katmanda kalan uzunluğu kontrol et. Ayrıca şu durumları yakala: ihl < 5 olması, ihl*4'ün kalan uzunluğu aşması ve tot_len tutarsızlığı. Güvenlik aracı olarak sunacağımız bir çalışmada ilk bakılacak yer burası.
+
+2. IP parçalanması: frag_off kontrol edilmiyor. İlk parça olmayan fragmanların yükü TCP/UDP başlığı gibi okunuyor ve yanlış port bilgisi çıkıyor.
+
+3. pcap dosyasından okuma: Deneylerin tekrarlanabilir olması için şart, çünkü değerlendirmeyi muhtemelen kamuya açık pcap'ler üzerinden yapacağız. libpcap'in pcap_open_offline fonksiyonunu kullanabilirsin. pcap dosya biçimi basit olduğu için okuyucuyu kendin de yazabilirsin. Canlı yakalama ve dosyadan okuma aynı ayrıştırma koduna girmeli.
+
+4. TCP akış takibi ve yeniden birleştirme: Bir TCP segmentinde birden fazla IEC 104 APDU olabilir ve bir mesaj birden fazla segmente bölünebilir. Bu yüzden paket bazında değil, akış (5-tuple) bazında tampon tutman gerekecek. Durum bilgili denetimin temeli bu.
+
+5. Modüler yapı: Şu an her şey tek main() içinde. Ayrıştırmayı katman başına fonksiyonlara böl. Her fonksiyon (const uint8_t *p, size_t len, ...) alsın ve kalan uzunluğu bir sonrakine geçirsin. Yakalama, ayrıştırma, kural denetimi ve çıktı ayrı modüller olsun.
+
+6. Çıktı: printf ile ekrana yazmak yerine olayları CSV veya JSON satırları olarak üret. Değerlendirmeyi bunlar üzerinden yapacağız.
+
+7. Küçük düzeltmeler:
+- ICMP checksum ntohs yapılmadan basılıyor.
+- Loopback filtresini sıfır MAC yerine sockaddr_ll (sll_pkttype, sll_ifindex) ile yap.
+- IPv6 (0x86DD) ve QinQ (0x88A8) desteği ekle.
+- Ctrl+C ile düzgün kapanış ve paket sayaçları ekle.
+
+8. Derleme ve belgeleme: Bir Makefile hazırla. Derlemede -Wall -Wextra, testlerde -fsanitize=address,undefined kullan. README.txt'yi kurulum, kullanım ve örnek çıktı içeren gerçek bir README.md'ye dönüştür.
+
+
+YAPILACAKLAR
+
+Aşama 1 – Altyapı: Yukarıdaki eksiklerin giderilmesi.
+
+Aşama 2 – Modbus/TCP ayrıştırıcı ve kurallar:
+- MBAP başlığı: transaction ID, protocol ID'nin 0 olması, length alanının gerçek uzunlukla tutarlılığı, unit ID.
+- Geçerli function code'lar ve exception yanıtları (fc + 0x80).
+- Miktar sınırları ve byte count tutarlılığı. Örneğin Read Coils en fazla 2000, Read Holding Registers en fazla 125, Write Multiple Registers en fazla 123 olabilir.
+- Transaction ID ile istek-yanıt eşleştirmesi: yanıtsız kalan istekler ve istek olmadan gelen yanıtlar.
+
+Aşama 3 – IEC 104 ayrıştırıcı ve durum makinesi:
+- APCI: 0x68 başlangıç baytı, 4–253 arası APDU uzunluğu, I/S/U format ayrımı, STARTDT/STOPDT/TESTFR.
+- N(S)/N(R) sıra numaralarının tutarlılığı. Atlama veya tekrar, replay ya da enjeksiyon belirtisi olabilir. Varsayılan k=12 ve w=8 eşiklerinin aşılması da denetlenmeli.
+- Durum ihlalleri: örneğin STARTDT onaylanmadan I-format veri gelmesi.
+- ASDU: TypeID ve COT geçerliliği, bilinmeyen TypeID'ler.
+
+Aşama 4 – Politika katmanı: Bir yapılandırma dosyasından okunan beyaz liste ile hangi IP'nin hangi işlemleri yapabileceğini tanımla. Özellikle yazma/komut işlemleri (Modbus 5/6/15/16 ve IEC 104 komut tipleri) yalnızca yetkili istasyondan gelmeli.
+
+Aşama 5 – Test ortamı ve veri:
+- lib60870-C ve pymodbus ile istemci/sunucu kur. Bir Docker ağı yeterli.
+- Senaryolar: yetkisiz yazma, replay, bozuk APDU, IEC 104 flood.
+- Zenodo'da yayımlanmış kamuya açık IEC 104 saldırı veri kümesi (2022) ile de test et.
+- Ayrıştırıcı fonksiyonlarını libFuzzer veya AFL++ ile fuzz et. Böylece "aracın kendisi bozuk paketlere karşı sağlam mı?" sorusunu baştan kapatırız.
+
+Aşama 6 – Ölçüm:
+- Raspberry Pi sınıfı bir cihazda paket/sn, CPU, bellek, gecikme ve paket kaybı (PACKET_STATISTICS).
+- Tespit oranı ve yanlış pozitif oranı.
+- Modbus tarafında Zeek ve Suricata ile karşılaştırma.
+
+Aşama 7 – Literatürde en azından şu iki çalışmayı oku:
+- Irmak ve Erkek'in G.Ü. Fen Bilimleri Dergisi Part C'deki Modbus TCP makalesi (2018)
+- Sakarya'da yapılmış EtherCAT tabanlı SCADA'da saldırı ve anomali tespiti doktora tezi (Akpınar, 2019)
+
+
+İLK ADIM
+
+Bir sonraki görüşmemize kadar Aşama 1'i tamamla. Ayrıca konuyla ilgili 10–15 kaynaklık kısa bir literatür listesi hazırla; her kaynak için 2–3 cümleyle ne yapıldığını, hangi protokolün ve hangi verinin kullanıldığını yaz. Modbus aşaması bitince bir ara değerlendirme yapacağız.
+
+İki küçük not:
+- Commit'lerini küçük ve sık tut. Hem ilerlemeyi takip etmek kolaylaşır hem de emeğin görünür olur.
+- Yapay zekâdan aldığın desteği not et. çalışmalarda yapay zekâ politikaları var ve bunu açıkça beyan edeceğiz.
+
+Kolay gelsin.

@@ -11,8 +11,10 @@
 				"${file}",
 				"-o",
 				"${fileDirname}/${fileBasenameNoExtension}",
-				//
-				"-Wall"
+				// warning all
+				"-Wall",
+				// warning extra
+				"-Wextra"
 			],
 			"options": {
 				"cwd": "${fileDirname}"
