@@ -55,7 +55,7 @@ int main(int argc, char *argv[]) // argv[0]: Program adı, argv[1]: Paket kapasi
     {
         int packet_cap_input = atoi(argv[1]);
         packet_cap_input <= 0 ? printf("Geçersiz paket kapasite değeri!") : (packet_cap = packet_cap_input);
-        // Paket kapasitesi değeri 0 veya küçükse uyar değilse paket kapasitesi olarak set et
+        // Paket kapasitesi değeri 0 veya küçükse uyar ve default değeri kullan, değilse paket kapasitesi olarak set et
     }
 
     // Dosyayı append modunda açıyoruz (append: Yoksa oluştur, varsa ekleme yap)
@@ -118,6 +118,14 @@ int main(int argc, char *argv[]) // argv[0]: Program adı, argv[1]: Paket kapasi
         { // VLAN etiketi
             struct vlanhdr *vlan = (struct vlanhdr *)(buffer + l2_hlength);
 
+            if ((data_size - l2_hlength) < sizeof(struct vlanhdr))
+            {
+                // Eğer paket boyutu l2_hlength çıkıldığında (Şuan sadece ethernet hdr boyutu kadar)
+                // vlanhdr boyutundan küçükse paketi çöpe at
+                // Not: Şuan Ethernet etiketindeki kodlar yine de çalışıyor
+                continue;
+            }
+
             uint16_t tci = ntohs(vlan->vlan_TCI);
             uint16_t vlan_id = tci & 0x0FFF;       // Son 12-bit VLAN ID
             uint8_t priority = (tci >> 13) & 0x07; // İlk 3 bit QoS Önceliğidir (0-7)
@@ -137,6 +145,24 @@ int main(int argc, char *argv[]) // argv[0]: Program adı, argv[1]: Paket kapasi
         {
             struct iphdr *ip = (struct iphdr *)(buffer + l2_hlength);
 
+            if (ip->ihl < 5 | (data_size - l2_hlength) < (ip->ihl * 4))
+            {
+                // Eğer ihl değeri 5'den küçükse (ihl * 4 == L3 hdr size) veya
+                // paket (L2 header kısmı çıkartıldığında) belirtilen değerden küçükse paketi kabul etme
+                // Not: Şuan paket burada çıkarılsa bile L2 kısmındaki işlemler gerçekleşiyor
+                continue;
+            }
+
+            if (ntohs(ip->tot_len) > (data_size - l2_hlength))
+            {
+                // Eğer Total length (L3 hdr + payload) alınan paketten büyükse paket eksik gelmiş demektir
+                // Not: Total length paketten daha küçük olabilir çünkü pakete padding eklenebilir
+                continue;
+            }
+
+            // Katman 3 header boyutu
+            int l3_hlength = ip->ihl * 4;
+
             printf("(L3) Kaynak IP Adresi: %s \n", inet_ntoa((struct in_addr){.s_addr = ip->saddr}));
             printf("(L3) Hedef IP Adresi: %s \n", inet_ntoa((struct in_addr){.s_addr = ip->daddr}));
 
@@ -153,7 +179,14 @@ int main(int argc, char *argv[]) // argv[0]: Program adı, argv[1]: Paket kapasi
             }
             case IPPROTO_TCP:
             {
-                struct tcphdr *tcp = (struct tcphdr *)(buffer + l2_hlength + (ip->ihl * 4));
+                struct tcphdr *tcp = (struct tcphdr *)(buffer + l2_hlength + l3_hlength);
+
+                if ((data_size - (l2_hlength + l3_hlength) < sizeof(struct tcphdr)))
+                {
+                    // Paket (L2 ve L3 header kısmı çıkartıldığında) belirtilen değerden küçükse paketi kabul etme
+                    // Not: Şuan paket burada çıkarılsa bile L2 ve L3 kısmındaki işlemler gerçekleşiyor
+                    continue;
+                }
 
                 printf("(L4) Protokol: TCP \n");
                 printf("Kaynak Port: %d \n", ntohs(tcp->source));
@@ -176,7 +209,14 @@ int main(int argc, char *argv[]) // argv[0]: Program adı, argv[1]: Paket kapasi
             }
             case IPPROTO_UDP:
             {
-                struct udphdr *udp = (struct udphdr *)(buffer + l2_hlength + (ip->ihl * 4));
+                struct udphdr *udp = (struct udphdr *)(buffer + l2_hlength + l3_hlength);
+
+                if ((data_size - (l2_hlength + l3_hlength) < sizeof(struct udphdr)))
+                {
+                    // Paket (L2 ve L3 header kısmı çıkartıldığında) belirtilen değerden küçükse paketi kabul etme
+                    // Not: Şuan paket burada çıkarılsa bile L2 ve L3 kısmındaki işlemler gerçekleşiyor
+                    continue;
+                }
 
                 printf("(L4) Protokol: UDP \n");
                 printf("Kaynak Port: %d \n", ntohs(udp->source));
@@ -189,7 +229,14 @@ int main(int argc, char *argv[]) // argv[0]: Program adı, argv[1]: Paket kapasi
             }
             case IPPROTO_ICMP:
             {
-                struct icmphdr *icmp = (struct icmphdr *)(buffer + l2_hlength + (ip->ihl * 4));
+                struct icmphdr *icmp = (struct icmphdr *)(buffer + l2_hlength + l3_hlength);
+
+                if ((data_size - (l2_hlength + l3_hlength) < sizeof(struct icmphdr)))
+                {
+                    // Paket (L2 ve L3 header kısmı çıkartıldığında) belirtilen değerden küçükse paketi kabul etme
+                    // Not: Şuan paket burada çıkarılsa bile L2 ve L3 kısmındaki işlemler gerçekleşiyor
+                    continue;
+                }
 
                 printf("(L4) Protokol: ICMP \n");
                 printf("Mesaj Tipi: %d \n", icmp->type);

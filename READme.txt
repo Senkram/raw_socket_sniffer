@@ -21,6 +21,8 @@ ayrıca SIGINT konusuna hakim olmadığım için direkt YZ'den kopyala yapışt�
 15- Debugging yapabilmek için IDE'ye (VSCode) yetki verme (sudo komutu gerektiriyor)
 16- Terminal komutları (yetki vermek vs.)
 17- Konfigürasyonlar
+18- IP header içerikleri hakkında detaylar
+19- Endiannes dönüşümünün gerektiği koşullar
 
 Not: Bu notları YZ kullanmadan kodu tekrardan gözden geçirerek çıkardım.
 
