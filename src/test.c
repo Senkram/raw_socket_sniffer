@@ -19,6 +19,7 @@
 #include <netinet/ip_icmp.h>
 #include <linux/if_vlan.h>
 #include <time.h>
+#include <stdbool.h>
 
 struct vlanhdr
 {
@@ -145,7 +146,7 @@ int main(int argc, char *argv[]) // argv[0]: Program adı, argv[1]: Paket kapasi
         {
             struct iphdr *ip = (struct iphdr *)(buffer + l2_hlength);
 
-            if (ip->ihl < 5 | (data_size - l2_hlength) < (ip->ihl * 4))
+            if ((ip->ihl < 5) | ((data_size - l2_hlength) < (ip->ihl * 4)))
             {
                 // Eğer ihl değeri 5'den küçükse (ihl * 4 == L3 hdr size) veya
                 // paket (L2 header kısmı çıkartıldığında) belirtilen değerden küçükse paketi kabul etme
@@ -163,9 +164,54 @@ int main(int argc, char *argv[]) // argv[0]: Program adı, argv[1]: Paket kapasi
             // Katman 3 header boyutu
             int l3_hlength = ip->ihl * 4;
 
+            // Bu paket parça şeklinde mi?
+            bool bis_fragment = false;
+
+            switch (((ntohs(ip->frag_off) >> 13) & 0x07))
+            {
+            // 0-0-0: Bölünebilir, son parça
+            // 0-0-1: Bölünebilir, daha fazla parça var
+            // 0-1-0: Bölünemez
+            case 0x00:
+            {
+                break;
+            }
+
+            case 0x01:
+            {
+                break;
+            }
+
+            case 0x02:
+            {
+                // Bölünemez ve offset var ise hatalı
+                // 0001-1111-1111-1111 ile çarp
+                if ((ntohs(ip->frag_off) & 0x1FFF) != 0)
+                    continue;
+
+                break;
+            }
+
+            // Hatalı paket
+            default:
+                continue;
+            }
+
+            // Eğer offset 0 ise ilk paket
+            if ((ntohs(ip->frag_off) & 0x1FFF) == 0)
+            {
+                // L4 parse etmeye devam et
+            }
+            // Offset 0 değil ise
+            else
+            {
+                // Bu bir parça (fragment) yani L4 header'ı yok
+                bis_fragment = true;
+            }
+
             printf("(L3) Kaynak IP Adresi: %s \n", inet_ntoa((struct in_addr){.s_addr = ip->saddr}));
             printf("(L3) Hedef IP Adresi: %s \n", inet_ntoa((struct in_addr){.s_addr = ip->daddr}));
-
+            printf("(L3) Bu paket bir parça mı: %d \n", (int)bis_fragment);
             fprintf(log_file, "(L3) Kaynak IP Adresi: %s \n", inet_ntoa((struct in_addr){.s_addr = ip->saddr}));
             fprintf(log_file, "(L3) Hedef IP Adresi: %s \n", inet_ntoa((struct in_addr){.s_addr = ip->daddr}));
 

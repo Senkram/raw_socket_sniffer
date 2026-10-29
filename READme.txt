@@ -23,6 +23,7 @@ ayrıca SIGINT konusuna hakim olmadığım için direkt YZ'den kopyala yapışt�
 17- Konfigürasyonlar
 18- IP header içerikleri hakkında detaylar
 19- Endiannes dönüşümünün gerektiği koşullar
+20- unsigned int var:4 -> 4-byte değil 4-bit olarak tutuluyor
 
 Not: Bu notları YZ kullanmadan kodu tekrardan gözden geçirerek çıkardım.
 

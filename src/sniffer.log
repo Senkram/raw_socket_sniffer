@@ -181,3 +181,86 @@ Ethernet Tipi: 0x0800
 Kaynak Port: 59930 
 Hedef Port: 443 
 -------------------------------
+29.10.2026 16:07:48 
+Kaynak MAC Adresi: 82:38:52:CD:B6:C7
+Hedef MAC Adresi: 32:05:08:03:CA:97
+Ethernet Tipi: 0x0800
+(L3) Kaynak IP Adresi: 172.17.0.2 
+(L3) Hedef IP Adresi: 4.150.223.96 
+(L4) Protokol: TCP 
+Kaynak Port: 56524 
+Hedef Port: 443 
+-------------------------------
+Kaynak MAC Adresi: 32:05:08:03:CA:97
+Hedef MAC Adresi: 82:38:52:CD:B6:C7
+Ethernet Tipi: 0x0800
+(L3) Kaynak IP Adresi: 4.150.223.96 
+(L3) Hedef IP Adresi: 172.17.0.2 
+(L4) Protokol: TCP 
+Kaynak Port: 443 
+Hedef Port: 56524 
+-------------------------------
+Kaynak MAC Adresi: 32:05:08:03:CA:97
+Hedef MAC Adresi: 82:38:52:CD:B6:C7
+Ethernet Tipi: 0x0800
+(L3) Kaynak IP Adresi: 4.150.223.96 
+(L3) Hedef IP Adresi: 172.17.0.2 
+(L4) Protokol: TCP 
+Kaynak Port: 443 
+Hedef Port: 56524 
+-------------------------------
+Kaynak MAC Adresi: 82:38:52:CD:B6:C7
+Hedef MAC Adresi: 32:05:08:03:CA:97
+Ethernet Tipi: 0x0800
+(L3) Kaynak IP Adresi: 172.17.0.2 
+(L3) Hedef IP Adresi: 4.150.223.96 
+(L4) Protokol: TCP 
+Kaynak Port: 56524 
+Hedef Port: 443 
+-------------------------------
+Kaynak MAC Adresi: 82:38:52:CD:B6:C7
+Hedef MAC Adresi: 32:05:08:03:CA:97
+Ethernet Tipi: 0x0800
+(L3) Kaynak IP Adresi: 172.17.0.2 
+(L3) Hedef IP Adresi: 140.82.112.22 
+(L4) Protokol: TCP 
+Kaynak Port: 48696 
+Hedef Port: 443 
+-------------------------------
+Kaynak MAC Adresi: 32:05:08:03:CA:97
+Hedef MAC Adresi: 82:38:52:CD:B6:C7
+Ethernet Tipi: 0x0800
+(L3) Kaynak IP Adresi: 140.82.112.22 
+(L3) Hedef IP Adresi: 172.17.0.2 
+(L4) Protokol: TCP 
+Kaynak Port: 443 
+Hedef Port: 48696 
+-------------------------------
+Kaynak MAC Adresi: 82:38:52:CD:B6:C7
+Hedef MAC Adresi: 32:05:08:03:CA:97
+Ethernet Tipi: 0x0800
+(L3) Kaynak IP Adresi: 172.17.0.2 
+(L3) Hedef IP Adresi: 140.82.112.22 
+(L4) Protokol: TCP 
+Kaynak Port: 48712 
+Hedef Port: 443 
+-------------------------------
+Kaynak MAC Adresi: 32:05:08:03:CA:97
+Hedef MAC Adresi: 82:38:52:CD:B6:C7
+Ethernet Tipi: 0x0800
+(L3) Kaynak IP Adresi: 140.82.112.22 
+(L3) Hedef IP Adresi: 172.17.0.2 
+(L4) Protokol: TCP 
+Kaynak Port: 443 
+Hedef Port: 48712 
+-------------------------------
+Kaynak MAC Adresi: 32:05:08:03:CA:97
+Hedef MAC Adresi: 82:38:52:CD:B6:C7
+Ethernet Tipi: 0x0806
+(L2 - L3) Protokol: ARP 
+-------------------------------
+Kaynak MAC Adresi: 82:38:52:CD:B6:C7
+Hedef MAC Adresi: 32:05:08:03:CA:97
+Ethernet Tipi: 0x0806
+(L2 - L3) Protokol: ARP 
+-------------------------------
